@@ -3,8 +3,6 @@ CREATE TABLE IF NOT EXISTS Users
     id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     username      TEXT UNIQUE NOT NULL,
     password      TEXT        NOT NULL,
-    email         TEXT UNIQUE,
-    phone         TEXT UNIQUE,
     full_name     TEXT        NOT NULL,
     birth_date    DATE        NOT NULL,
     role          TEXT        NOT NULL,
@@ -12,8 +10,26 @@ CREATE TABLE IF NOT EXISTS Users
 );
 
 CREATE INDEX ix_username ON Users (username);
-CREATE INDEX ix_email ON Users (email);
-CREATE INDEX ix_phone ON Users (phone);
+
+CREATE TABLE IF NOT EXISTS Phones
+(
+    id      UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID,
+    phone   TEXT NOT NULL UNIQUE,
+
+    CONSTRAINT user_fk FOREIGN KEY (user_id)
+        REFERENCES Users (id)
+);
+
+CREATE TABLE IF NOT EXISTS Emails
+(
+    id      UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID,
+    email   TEXT NOT NULL UNIQUE,
+
+    CONSTRAINT user_fk FOREIGN KEY (user_id)
+        REFERENCES Users (id)
+);
 
 CREATE TABLE IF NOT EXISTS Accounts
 (

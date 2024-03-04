@@ -9,10 +9,10 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.effectivemobile.dto.JwtRequest;
-import ru.effectivemobile.dto.LoginRequest;
-import ru.effectivemobile.dto.LoginResponse;
-import ru.effectivemobile.dto.SignupRequest;
+import ru.effectivemobile.dto.authentication.JwtRequest;
+import ru.effectivemobile.dto.authentication.LoginRequest;
+import ru.effectivemobile.dto.authentication.LoginResponse;
+import ru.effectivemobile.dto.authentication.SignupRequest;
 import ru.effectivemobile.service.AuthenticationService;
 
 @Tag(name = "Authentication controller", description = "Authentication API")

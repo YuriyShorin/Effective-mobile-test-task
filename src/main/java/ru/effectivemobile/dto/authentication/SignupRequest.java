@@ -1,4 +1,4 @@
-package ru.effectivemobile.dto;
+package ru.effectivemobile.dto.authentication;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;

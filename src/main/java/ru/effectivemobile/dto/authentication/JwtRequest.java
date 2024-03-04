@@ -1,4 +1,4 @@
-package ru.effectivemobile.dto;
+package ru.effectivemobile.dto.authentication;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;

@@ -7,10 +7,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.Collection;
-import java.util.Date;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @Entity
 @Table(name = "Users")
@@ -30,11 +27,23 @@ public class User implements UserDetails {
     @Column(name = "password")
     private String password;
 
-    @Column(name = "email")
-    private String email;
+    @OneToMany(
+            fetch = FetchType.LAZY,
+            cascade = CascadeType.ALL,
+            orphanRemoval = true)
+    @JoinColumn(
+            name = "user_id",
+            nullable = false)
+    private Set<Email> emails;
 
-    @Column(name = "phone")
-    private String phone;
+    @OneToMany(
+            fetch = FetchType.LAZY,
+            cascade = CascadeType.ALL,
+            orphanRemoval = true)
+    @JoinColumn(
+            name = "user_id",
+            nullable = false)
+    private Set<Phone> phones;
 
     @Column(name = "full_name")
     private String fullName;
@@ -49,11 +58,11 @@ public class User implements UserDetails {
     @Enumerated(value = EnumType.STRING)
     private Role role;
 
-    public User(String username, String password, String email, String phone, String fullName, Date birthDate, Role role) {
+    public User(String username, String password, Set<Email> emails, Set<Phone> phones, String fullName, Date birthDate, Role role) {
         this.username = username;
         this.password = password;
-        this.email = email;
-        this.phone = phone;
+        this.emails = emails;
+        this.phones = phones;
         this.fullName = fullName;
         this.birthDate = birthDate;
         this.role = role;
@@ -66,7 +75,7 @@ public class User implements UserDetails {
 
     @Override
     public String getUsername() {
-        return email;
+        return username;
     }
 
     @Override

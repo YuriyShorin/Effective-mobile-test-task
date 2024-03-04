@@ -7,20 +7,22 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.effectivemobile.dto.JwtRequest;
-import ru.effectivemobile.dto.LoginRequest;
-import ru.effectivemobile.dto.LoginResponse;
-import ru.effectivemobile.dto.SignupRequest;
+import ru.effectivemobile.dto.authentication.JwtRequest;
+import ru.effectivemobile.dto.authentication.LoginRequest;
+import ru.effectivemobile.dto.authentication.LoginResponse;
+import ru.effectivemobile.dto.authentication.SignupRequest;
 import ru.effectivemobile.exception.UserAlreadyExistsException;
 import ru.effectivemobile.exception.UserNotFoundException;
 import ru.effectivemobile.exception.WrongPasswordException;
 import ru.effectivemobile.exception.WrongRefreshTokenException;
-import ru.effectivemobile.model.Account;
-import ru.effectivemobile.model.Role;
-import ru.effectivemobile.model.User;
+import ru.effectivemobile.model.*;
 import ru.effectivemobile.repository.AccountRepository;
+import ru.effectivemobile.repository.EmailRepository;
+import ru.effectivemobile.repository.PhoneRepository;
 import ru.effectivemobile.repository.UserRepository;
 import ru.effectivemobile.security.utils.JwtProvider;
+
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +31,10 @@ public class AuthenticationService {
     private final UserRepository userRepository;
 
     private final AccountRepository accountRepository;
+
+    private final PhoneRepository phoneRepository;
+
+    private final EmailRepository emailRepository;
 
     private final PasswordEncoder passwordEncoder;
 
@@ -40,19 +46,19 @@ public class AuthenticationService {
             throw new UserAlreadyExistsException("User already exist");
         }
 
-        if (userRepository.findByEmail(signupRequest.getEmail()).isPresent()) {
+        if (emailRepository.findByEmail(signupRequest.getEmail()).isPresent()) {
             throw new UserAlreadyExistsException("User with such email already exist");
         }
 
-        if (userRepository.findByPhone(signupRequest.getPhone()).isPresent()) {
+        if (phoneRepository.findByPhone(signupRequest.getPhone()).isPresent()) {
             throw new UserAlreadyExistsException("User with such phone already exist");
         }
 
         User user = new User(
                 signupRequest.getUsername(),
                 passwordEncoder.encode(signupRequest.getPassword()),
-                signupRequest.getEmail(),
-                signupRequest.getPhone(),
+                Set.of(new Email(signupRequest.getEmail())),
+                Set.of(new Phone(signupRequest.getPhone())),
                 signupRequest.getFullName(),
                 signupRequest.getBirthDate(),
                 Role.CUSTOMER
