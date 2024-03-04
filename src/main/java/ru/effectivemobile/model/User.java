@@ -8,6 +8,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.Set;
 import java.util.UUID;
 
@@ -23,11 +24,14 @@ public class User implements UserDetails {
     @Column(name = "id")
     private UUID id;
 
-    @Column(name = "email")
-    private String email;
+    @Column(name = "username")
+    private String username;
 
     @Column(name = "password")
     private String password;
+
+    @Column(name = "email")
+    private String email;
 
     @Column(name = "phone")
     private String phone;
@@ -35,17 +39,23 @@ public class User implements UserDetails {
     @Column(name = "full_name")
     private String fullName;
 
+    @Column(name = "birth_date")
+    private Date birthDate;
+
     @Column(name = "refresh_token")
     private String refreshToken;
 
     @Column(name = "role")
+    @Enumerated(value = EnumType.STRING)
     private Role role;
 
-    public User(String email, String password, String phone, String fullName, Role role) {
-        this.email = email;
+    public User(String username, String password, String email, String phone, String fullName, Date birthDate, Role role) {
+        this.username = username;
         this.password = password;
+        this.email = email;
         this.phone = phone;
         this.fullName = fullName;
+        this.birthDate = birthDate;
         this.role = role;
     }
 

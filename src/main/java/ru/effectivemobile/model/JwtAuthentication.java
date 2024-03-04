@@ -14,7 +14,7 @@ public class JwtAuthentication implements Authentication {
 
     private String id;
 
-    private String email;
+    private String username;
 
     private Set<Role> roles;
 
@@ -25,7 +25,7 @@ public class JwtAuthentication implements Authentication {
 
     @Override
     public Object getCredentials() {
-        return email;
+        return username;
     }
 
     @Override
@@ -35,7 +35,7 @@ public class JwtAuthentication implements Authentication {
 
     @Override
     public Object getPrincipal() {
-        return email;
+        return username;
     }
 
     @Override
@@ -50,6 +50,6 @@ public class JwtAuthentication implements Authentication {
 
     @Override
     public String getName() {
-        return email;
+        return username;
     }
 }

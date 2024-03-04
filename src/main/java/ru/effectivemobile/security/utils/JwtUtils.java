@@ -12,7 +12,7 @@ public class JwtUtils {
     public static JwtAuthentication generate(Claims claims) {
         final JwtAuthentication jwtInfoToken = new JwtAuthentication();
         jwtInfoToken.setRoles(Set.of(Role.valueOf(claims.get("role", String.class))));
-        jwtInfoToken.setEmail(claims.get("email", String.class));
+        jwtInfoToken.setUsername(claims.get("username", String.class));
         jwtInfoToken.setId(claims.get("id", String.class));
 
         return jwtInfoToken;

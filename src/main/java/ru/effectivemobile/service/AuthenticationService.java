@@ -30,15 +30,25 @@ public class AuthenticationService {
     private final JwtProvider jwtProvider;
 
     public ResponseEntity<?> signup(SignupRequest signupRequest) {
+        if (userRepository.findByUsername(signupRequest.getUsername()).isPresent()) {
+            throw new UserAlreadyExistsException("User already exist");
+        }
+
         if (userRepository.findByEmail(signupRequest.getEmail()).isPresent()) {
-            throw new UserAlreadyExistsException();
+            throw new UserAlreadyExistsException("User with such email already exist");
+        }
+
+        if (userRepository.findByPhone(signupRequest.getPhone()).isPresent()) {
+            throw new UserAlreadyExistsException("User with such phone already exist");
         }
 
         User user = new User(
-                signupRequest.getEmail(),
+                signupRequest.getUsername(),
                 passwordEncoder.encode(signupRequest.getPassword()),
+                signupRequest.getEmail(),
                 signupRequest.getPhone(),
                 signupRequest.getFullName(),
+                signupRequest.getBirthDate(),
                 Role.CUSTOMER
         );
         userRepository.save(user);
@@ -47,7 +57,7 @@ public class AuthenticationService {
     }
 
     public ResponseEntity<LoginResponse> login(LoginRequest loginRequest) {
-        final User user = userRepository.findByEmail(loginRequest.getEmail()).orElseThrow(UserNotFoundException::new);
+        final User user = userRepository.findByUsername(loginRequest.getUsername()).orElseThrow(UserNotFoundException::new);
 
         if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
             throw new WrongPasswordException();
@@ -65,8 +75,8 @@ public class AuthenticationService {
     public ResponseEntity<LoginResponse> getAccessToken(JwtRequest jwtRequest) {
         if (jwtProvider.validateRefreshToken(jwtRequest.getToken())) {
             final Claims claims = jwtProvider.getRefreshClaims(jwtRequest.getToken());
-            final String email = claims.getSubject();
-            final User user = userRepository.findByEmail(email).orElseThrow(UserNotFoundException::new);
+            final String username = claims.getSubject();
+            final User user = userRepository.findByUsername(username).orElseThrow(UserNotFoundException::new);
             final String saveRefreshToken = user.getRefreshToken();
 
             if (saveRefreshToken != null && saveRefreshToken.equals(jwtRequest.getToken())) {
@@ -82,8 +92,8 @@ public class AuthenticationService {
     public ResponseEntity<LoginResponse> getRefreshToken(JwtRequest jwtRequest) {
         if (jwtProvider.validateRefreshToken(jwtRequest.getToken())) {
             final Claims claims = jwtProvider.getRefreshClaims(jwtRequest.getToken());
-            final String email = claims.getSubject();
-            final User user = userRepository.findByEmail(email).orElseThrow(UserNotFoundException::new);
+            final String username = claims.getSubject();
+            final User user = userRepository.findByUsername(username).orElseThrow(UserNotFoundException::new);
             final String saveRefreshToken = user.getRefreshToken();
 
             if (saveRefreshToken != null && saveRefreshToken.equals(jwtRequest.getToken())) {
