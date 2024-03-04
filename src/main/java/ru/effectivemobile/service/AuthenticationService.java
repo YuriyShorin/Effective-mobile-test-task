@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.effectivemobile.dto.JwtRequest;
 import ru.effectivemobile.dto.LoginRequest;
 import ru.effectivemobile.dto.LoginResponse;
@@ -14,8 +15,10 @@ import ru.effectivemobile.exception.UserAlreadyExistsException;
 import ru.effectivemobile.exception.UserNotFoundException;
 import ru.effectivemobile.exception.WrongPasswordException;
 import ru.effectivemobile.exception.WrongRefreshTokenException;
+import ru.effectivemobile.model.Account;
 import ru.effectivemobile.model.Role;
 import ru.effectivemobile.model.User;
+import ru.effectivemobile.repository.AccountRepository;
 import ru.effectivemobile.repository.UserRepository;
 import ru.effectivemobile.security.utils.JwtProvider;
 
@@ -25,10 +28,13 @@ public class AuthenticationService {
 
     private final UserRepository userRepository;
 
+    private final AccountRepository accountRepository;
+
     private final PasswordEncoder passwordEncoder;
 
     private final JwtProvider jwtProvider;
 
+    @Transactional
     public ResponseEntity<?> signup(SignupRequest signupRequest) {
         if (userRepository.findByUsername(signupRequest.getUsername()).isPresent()) {
             throw new UserAlreadyExistsException("User already exist");
@@ -53,9 +59,19 @@ public class AuthenticationService {
         );
         userRepository.save(user);
 
+        user = userRepository.findByUsername(signupRequest.getUsername()).orElseThrow(UserNotFoundException::new);
+
+        Account account = new Account(
+                user.getId(),
+                signupRequest.getInitialDeposit(),
+                signupRequest.getInitialDeposit()
+        );
+        accountRepository.save(account);
+
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
+    @Transactional
     public ResponseEntity<LoginResponse> login(LoginRequest loginRequest) {
         final User user = userRepository.findByUsername(loginRequest.getUsername()).orElseThrow(UserNotFoundException::new);
 
@@ -72,6 +88,7 @@ public class AuthenticationService {
         return ResponseEntity.ok(new LoginResponse(accessToken, refreshToken));
     }
 
+    @Transactional(readOnly = true)
     public ResponseEntity<LoginResponse> getAccessToken(JwtRequest jwtRequest) {
         if (jwtProvider.validateRefreshToken(jwtRequest.getToken())) {
             final Claims claims = jwtProvider.getRefreshClaims(jwtRequest.getToken());
@@ -89,6 +106,7 @@ public class AuthenticationService {
         return ResponseEntity.ok(new LoginResponse(null, null));
     }
 
+    @Transactional
     public ResponseEntity<LoginResponse> getRefreshToken(JwtRequest jwtRequest) {
         if (jwtProvider.validateRefreshToken(jwtRequest.getToken())) {
             final Claims claims = jwtProvider.getRefreshClaims(jwtRequest.getToken());
